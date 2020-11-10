@@ -83,8 +83,7 @@
 </template>
 
 <script>
-import {logIn, getUser} from '@/services/auth'
-// import { defineRulesFor } from "@/services/ability";
+import {logIn} from '@/services/auth'
 export default {
   name: 'FormValidation',
   props: {
@@ -103,7 +102,6 @@ export default {
   },
   methods : {
     logIn,
-    getUser,
     async auth(){
       if (this.inProcess) {
         console.warn('logIn() dulp');
@@ -115,14 +113,12 @@ export default {
 
       try {
         await this.logIn(this.name, this.password);
-        // this.$ability.update(defineRulesFor(this.getUser()));
-        await this.$router.replace('/students/get');
+        await this.$router.replace('students/get');
       } catch (err) {
         this.error = err;
       } finally {
         this.inProcess = false;
       }
-
       return false;
     }
   }

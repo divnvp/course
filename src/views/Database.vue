@@ -1,118 +1,146 @@
 <template>
-  <v-card class="teal rounded-0 white--text px-10 pa-10 elevation-0">
-    <v-row>
-    <v-card-title class="font-weight-bold white--text text-h2 pb-10">
+  <v-container fluid>
+  <v-card class="teal rounded-xl px-10 pa-10 elevation-0">
+    <v-row class="white--text">
+    <v-card-title class="font-weight-bold text-h2 pb-10">
       Студенты
     </v-card-title>
       <v-spacer></v-spacer>
-      <v-select v-model="selectedCategory"
-                v-bind:items="groupList"
-                label="Category"
-                :item-text="item => item.id > 0 ? (item.name+' - '+ item.categoryType.name) : item.name"
-                item-value="id" @change="searchStudent()">
-      </v-select>
       <v-col
           cols="12"
           sm="5"
           md="6"
           lg="6"
           xl="6"
-          class="px-10"
-      >
-      <v-text-field class="font-weight-medium"
-                    v-model="staffTable.search"
-                    background-color="white"
+          class="px-10">
+      <v-text-field class="font-weight-medium text-input-white"
                     append-icon="search"
                     filled
-                    rounded color="black"
-                    label="Search"
-                    @keyup.enter="searchStudent()"
-                    @click:clear="searchStudent(true)"
-      ></v-text-field>
+                    label="Поиск"
+                    v-model="search"
+                    rounded
+                    color="white">
+      </v-text-field>
       </v-col>
     </v-row>
-    <v-data-table
-        :headers="staffTable.headers"
-        loading-text="Loading..."
-        :loading="staffTable.loading"
-        :items="stList"
-        :page.sync="staffTable.page"
-        :server-items-length="staffTable.totalDesserts"
-        :options.sync="pagination"
-    class="rounded-xl">
-    </v-data-table>
+    <v-container fill-height fluid>
+      <v-row aria-orientation="horizontal">
+        <v-col cols="12"
+               sm="6"
+               md="5"
+               lg="6"
+               xl="2">
+          <v-dialog
+              v-model="dialog"
+              content-class="round"
+              hide-overlay
+              transition="dialog-bottom-transition"
+              max-width="400px">
+          <template v-slot:activator="{ on, attrs }">
+          <v-btn rounded class="font-weight-bold" fab v-bind="attrs" v-on="on">
+            <v-icon color="teal">add</v-icon>
+          </v-btn>
+          </template>
+            <DialogAdd></DialogAdd>
+          </v-dialog>
+<!--          <v-dialog-->
+<!--              v-model="dialog"-->
+<!--              content-class="round"-->
+<!--              hide-overlay-->
+<!--              transition="dialog-bottom-transition"-->
+<!--              max-width="400px">-->
+<!--            <template v-slot:activator="{ on, attrs }">-->
+              <v-btn rounded class="font-weight-bold mx-5" fab>
+                <v-icon color="blue">edit</v-icon>
+              </v-btn>
+<!--            </template>-->
+<!--            <DialogChange></DialogChange>-->
+<!--          </v-dialog>-->
+          <v-btn rounded class="font-weight-bold" fab>
+            <v-icon color="red">delete</v-icon>
+          </v-btn>
+        </v-col>
+      </v-row>
+    </v-container>
   </v-card>
+    <v-data-table
+        :headers="headers"
+        :items="items"
+        :hide-default-footer="true"
+        :search="search"
+        :single-select="singleSelect"
+        item-key="name"
+        show-select
+        class="rounded-xl">
+      <template v-slot:item.groups="{ item }">
+        <p>{{ item.groups.className }}</p>
+      </template>
+      <template v-slot:item.score="{ item }">
+        <v-chip
+            :color="getColor(item.score)"
+            dark>
+          {{ item.score }}
+        </v-chip>
+      </template>
+    </v-data-table>
+  </v-container>
 </template>
 
 <script>
+
 import api from '../api';
+import DialogAdd from "@/components/DialogAdd";
+// import DialogChange from "@/components/DialogChange";
+
 export default {
-  data: () => ({
-    stList:[],
-    pagination: {},
-    selectedCategory: null,
-    groupList:[],
-    staffTable:{
-      page: 1,
-      sort: 'name',
-      search: null,
-      descending: true,
-      emptyTableMessage: 'Список пуст',
-      totalDesserts: 0,
-      loading: true,
-      headers:[
-        {
-          text:'id',
-          sortable: false,
-          value:'id',
-        },
-        {
-          text: 'Name',
-          sortable: true,
-          value:'name',
-        }
-      ]
-    },
-  }),
-  computed:{
-    // offset(){
-    //   return (this.pagination.page - 1) * this.pagination.itemsPerPage;
-    // }
-  },
-  methods: {
-    async loadStudents(clear) {
-      this.staffTable.loading = true;
-      if (clear){
-        this.staffTable.search = null;
-      }
-      try {
-        const items = await api.get(
-            `students/get`
-        );
-        let index = 0;
-        this.student = items.content.map(v => {
-          v.number = index++;
-          return v;
-        });
-        this.staffTable.totalDesserts = items.totalElems;
-      } catch (err) {
-        console.log(`error load category staff list ${err}`);
-      } finally {
-        this.staffTable.loading = false;
-      }
-    },
-    // select(item){
-    //   if (!this.filter.some(v => v.id === item.id)) {
-    //     this.$emit('select-user', item);
-    //   }
-    // },
-    searchStudent(clear){
-      this.staffTable.page = 1;
-      this.loadStudents(clear);
+  components: { DialogAdd },
+  data() {
+    return {
+      singleSelect: false,
+      selected: [],
+      dialog: false,
+      search: '',
+      headers: [
+        {text: 'Id', value: 'id'},
+        {text: 'Name', value: 'name'},
+        {text: 'Score', value: 'score'},
+        {text: 'Birthday', value: 'birthday'},
+        {text: 'Sex', value: 'sex'},
+        {text: 'Group', value: 'groups'},
+      ],
+      items: [],
     }
   },
-  mounted() {
-    this.loadStudents();
+  methods: {
+    getStudents() {
+      api.get("/students/get").then(response => {
+          this.items = response;
+      }).catch(function (error){
+        error.response.data
+      });
+    },
+    getColor (score) {
+      if (score < 3.5) return 'red'
+      else if (score < 4.5) return 'orange'
+      else return 'green'
+    },
+  },
+  mounted: function () {
+    this.getStudents();
   },
 }
+
 </script>
+
+<style>
+
+.text-input-white .v-text-field__slot input {
+color: #fff !important;
+}
+
+.round {
+  border-radius: 30px;
+  overflow-y: hidden;
+}
+
+</style>

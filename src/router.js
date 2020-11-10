@@ -8,15 +8,18 @@ export default new Router({
     routes:[
         {
             path: '/auth',
-            component: Login
+            component: Login,
+            name:'auth'
         },
         {
             path: '/help',
-            component: Help
+            component: Help,
+            name:'help',
         },
         {
             path: '/students/get',
-            component: Database
+            component: Database,
+            name:'database'
         },
     ]
 });

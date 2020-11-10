@@ -16,11 +16,13 @@ function getUser(){
 }
 
 async function logIn(login, pwd){
+    console.log("login");
     const user = await api.post('auth',`login=${encodeURIComponent(login)}&pwd=${encodeURIComponent(pwd)}`, {
         headers:{
             'Content-Type': 'application/x-www-form-urlencoded',
         },
     });
+    console.log("user:", user);
     setUser(user);
 }
 
