@@ -2,7 +2,7 @@
 <v-card rounded>
   <v-card-title class="justify-center pa-10 pb-5">
     <span class="headline font-weight-bold">
-    Добавить студента
+    {{ title }}
     </span>
   </v-card-title>
   <v-card-text class="pb-0">
@@ -14,14 +14,14 @@
               label="ФИО"
               color="deep-orange"
               rounded
-              v-model="fio"
+              v-model="value.fioField"
               outlined
               append-icon="person"
               required>
           </v-text-field>
           <v-text-field
               label="Балл"
-              v-model="score"
+              v-model="value.score"
               rounded
               color="deep-orange"
               outlined
@@ -33,11 +33,11 @@
               v-model="menu"
               :close-on-content-click="false"
               transition="scale-transition"
-              offset-x
+              offset-y
               min-width="290px">
             <template v-slot:activator="{ on, attrs }">
               <v-text-field
-                  v-model="date"
+                  v-model="value.date"
                   label="Дата рождения"
                   append-icon="mdi-calendar"
                   outlined
@@ -50,18 +50,17 @@
             <v-date-picker
                 ref="picker"
                 color="deep-orange"
-                v-model="date"
+                v-model="value.date"
                 no-title
                 :max="new Date().toISOString().substr(0, 10)"
                 min="1950-01-01"
-                @change="save"
             ></v-date-picker>
           </v-menu>
         <v-combobox
             height="50px"
             color="deep-orange"
             align="center"
-            v-model="sex"
+            v-model="value.sex"
             :items="items"
             label="Пол"
             rounded
@@ -71,7 +70,7 @@
               height="50px"
               color="deep-orange"
               align="center"
-              v-model="groupsmod"
+              v-model="value.groupsmod"
               :items="groups"
               item-text="className"
               label="Группа"
@@ -94,7 +93,7 @@
               width="100px"
               height="50px"
               @click="resetDetails">
-            <v-icon>mdi-restart</v-icon>
+            <v-icon>mdi-eraser</v-icon>
           </v-btn>
         </template>
         <span>Сбросить</span>
@@ -126,19 +125,22 @@
 import api from "@/api";
 
 export default {
+  props: {
+    title: {
+      type: String
+    },
+    value: Object,
+  },
   data: () => ({
     dialog: false,
-    date: null,
-    fio:'',
-    score:'',
-    sex:'',
-    groupsmod:null,
+    id: null,
     menu: false,
     items: [
       'Мужской',
       'Женский',
     ],
-    groups:[]
+    groups:[],
+
   }),
   watch: {
     menu (val) {
@@ -146,22 +148,21 @@ export default {
     },
   },
   methods: {
-    save (date) {
-      this.$refs.menu.save(date)
-    },
     getGroups(){
       api.get("/groups/get").then(response => {
         this.groups = response;
       });
     },
     saveDetails(){
-      api.post('/students/post',{
-        name: this.fio,
-        score: this.score,
-        birthday: this.date,
-        sex: this.sex,
-        groups: this.groupsmod
-      })
+      this.$emit('save');
+      // api.post('/students/post',{
+      //   name: this.fioField,
+      //   score: this.score,
+      //   birthday: this.date,
+      //   sex: this.sex,
+      //   groups: this.groupsmod
+      // })
+      // window.location.reload()
     },
     resetDetails(){
       this.$refs.form.reset()

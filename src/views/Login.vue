@@ -1,15 +1,15 @@
 <template>
   <v-container class="fill-height">
-    <v-main>
+    <v-main aria-orientation="horizontal">
       <v-row align="center" justify="center" no-gutters >
         <v-col cols="12" sm="8" md="8" lg="8" xl="8">
           <v-container>
             <h2 class="deep-orange--text
-        font-weight-bold
-        text-h4
-        text-md-h2
-        text-lg-h2
-        text-xl-h2">
+            font-weight-bold
+            text-h4
+            text-md-h2
+            text-lg-h2
+            text-xl-h2">
               Database
             </h2>
           </v-container>
@@ -53,22 +53,22 @@
                       Войти
                     </v-btn>
                   </v-col>
-                  <v-col cols="12" sm="4" md="4" lg="4" xl="4" class="teal rounded-tr-xl rounded-br-xl white--text" justify="center">
+                  <v-col cols="12" sm="4" md="4" lg="4" xl="4" class="indigo rounded-tr-xl rounded-br-xl white--text" justify="center">
                     <img src="@/assets/pictures/001-teacher.png" height="80px" alt/>
                     <p class="
-                text-sm-body-2
-                text-md-body-1
-                text-lg-body-1
-                text-xl-body-1">
+                      text-sm-body-2
+                      text-md-body-1
+                      text-lg-body-1
+                      text-xl-body-1">
                       - удаление <br>
                       - добавление <br>
                       - изменение
                     </p>
                     <img src="@/assets/pictures/002-student.png" height="80px" alt/>
                     <p class="text-sm-body-2
-                text-md-body-1
-                text-lg-body-1
-                text-xl-body-1">
+                      text-md-body-1
+                      text-lg-body-1
+                      text-xl-body-1">
                       - поиск
                     </p>
                   </v-col>
@@ -101,18 +101,13 @@ export default {
     }
   },
   methods : {
-    logIn,
     async auth(){
-      if (this.inProcess) {
-        console.warn('logIn() dulp');
-        return false;
-      }
 
       this.error = null;
       this.inProcess = true;
 
       try {
-        await this.logIn(this.name, this.password);
+        await logIn(this.name, this.password);
         await this.$router.replace('students/get');
       } catch (err) {
         this.error = err;

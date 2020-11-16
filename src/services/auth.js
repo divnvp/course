@@ -15,6 +15,7 @@ function getUser(){
     }
 }
 
+
 async function logIn(login, pwd){
     console.log("login");
     const user = await api.post('auth',`login=${encodeURIComponent(login)}&pwd=${encodeURIComponent(pwd)}`, {
@@ -35,4 +36,4 @@ export function getStudents(){
     api.get('students/get').then(response => (this.info = response.data.string()));
 }
 
-export {logIn, logOut, getUser}
+export {logIn, logOut, getUser, setUser}
